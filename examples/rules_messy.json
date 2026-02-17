@@ -1,0 +1,16 @@
+{
+    "variables_format":{},
+    "table":{
+        "headers": {
+            "customer_name": "str",
+            "email": "email",
+            "order_id": "int",
+            "amount": "float",
+            "date": "datetime",
+            "country": "str",
+            "notes": "str"
+        },
+        "unique_entries": ["order_id"],
+        "not_null_entries": [["order_id", 0]]
+    }
+}
