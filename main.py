@@ -13,5 +13,10 @@ if __name__ == "__main__":
     cleaner.save_data('examples/cleaned_csv_file.csv')
     
     print(cleaner.data_to_string)
+    print(cleaner.pandas.info())
     
     validator = CSV_Validator(rules, 'examples/validation_log.txt', data=cleaner.pandas)
+    validator.validate_data()
+    
+    with open('examples/validation_log.txt', 'r') as log_file:
+        print(log_file.read())
