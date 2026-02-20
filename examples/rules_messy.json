@@ -7,10 +7,10 @@
             "order_id": "int",
             "amount": "float",
             "date": "datetime",
-            "country": "str",
+            "country": "country",
             "notes": "str"
         },
         "unique_entries": ["order_id"],
-        "not_null_entries": [["order_id", 0]]
+        "not_null_entries": [["order_id", 0], ["country", "ROU"]]
     }
 }

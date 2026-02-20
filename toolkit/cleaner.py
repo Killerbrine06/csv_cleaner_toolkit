@@ -1,4 +1,5 @@
 import pandas as pd
+import country_converter as cc
 
 class CSV_Cleaner:
     def __init__(self, rules:dict, file_path:str):
@@ -28,6 +29,11 @@ class CSV_Cleaner:
         
         # Drop duplicaate rows
         df = df.drop_duplicates()
+        
+        # Normalizing country names
+        for header in self.__rules['table']['headers']:
+            if self.__rules['table']['headers'][header] == 'country':
+                df[header] = df[header].apply(lambda x: cc.convert(names=x, to='ISO3', not_found=pd.NA) if pd.notna(x) else x)
 
         self.__df = df
     

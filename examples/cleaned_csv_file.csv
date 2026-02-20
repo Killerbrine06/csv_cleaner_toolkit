@@ -1,11 +1,11 @@
 customer_name,email,order_id,amount,date,country,notes
 John Smith,john.smith@email.com,1001,120.5,2024/01/05,USA,first order
-Jane Doe,jane.doe@email.com,1002,89.99,05-01-2024,US,
+Jane Doe,jane.doe@email.com,1002,89.99,05-01-2024,USA,
 ,missing@email.com,1003,45.0,2024-01-07,USA,missing name
-Alice Brown,alice.brown@email,1004,-15.0,07/01/2024,United States,refund?
+Alice Brown,alice.brown@email,1004,-15.0,07/01/2024,USA,refund?
 Bob White,bob.white@email.com,1005,,2024-01-08,USA,
 Charlie Black,charlie.black@email.com,1006,200.0,2024-13-01,USA,invalid date
 David Green,david.green@email.com,1007,150.0,2024-01-10,,
 Eve Adams,eve.adams@email.com,1008,99.999,2024-01-11,USA,extra decimals
-Frank Moore,frank.moore@email.com,1009,75.25,01/12/2024,U.S.A,
-George King,george.king@email.com,1009,75.25,01/12/2024,U.S.A,duplicate id
+Frank Moore,frank.moore@email.com,1009,75.25,01/12/2024,USA,
+George King,george.king@email.com,1009,75.25,01/12/2024,USA,duplicate id
