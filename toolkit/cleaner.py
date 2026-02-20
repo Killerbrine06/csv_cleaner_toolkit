@@ -25,6 +25,9 @@ class CSV_Cleaner:
 
         # Drop rows with all NaN values
         df = df.dropna(how='all')
+        
+        # Drop duplicaate rows
+        df = df.drop_duplicates()
 
         self.__df = df
     

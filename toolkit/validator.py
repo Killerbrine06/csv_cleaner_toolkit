@@ -1,5 +1,8 @@
 import pandas as pd
 
+class NumericValidationError(Exception):
+    pass
+
 class CSV_Validator:
     def __init__(self, rules:dict, log_path:str, file_path:str=None, data=None):
         if not (file_path or type(data) == pd.DataFrame):
@@ -35,6 +38,7 @@ class CSV_Validator:
                 for idx in self.__df[null_rows].index:
                     log_file.write(f"Row {idx}\n")
         
+        numeric_validation_errors = False
         for header in self.__rules['table']['headers']:
             header = header.strip().replace(' ', '_').lower()
             
@@ -48,6 +52,7 @@ class CSV_Validator:
                 bad_rows = cols_to_num.isna() & self.__df[header].notna()
                 
                 if bad_rows.any():
+                    numeric_validation_errors = True
                     log_file.write(f"Non-numeric values in header '{header}':\n")
                     for idx in self.__df[bad_rows].index:
                         log_file.write(f"Row {idx}: {self.__df.loc[idx, header]}\n")
@@ -87,4 +92,6 @@ class CSV_Validator:
                     log_file.write(f"Row {idx}: {self.__df.loc[idx, header]}\n")
                     
         log_file.close()
-            
+        
+        if numeric_validation_errors:
+            raise NumericValidationError("Numeric validation errors found. See log for details.")
