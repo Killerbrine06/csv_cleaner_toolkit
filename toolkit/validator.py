@@ -71,6 +71,20 @@ class CSV_Validator:
                     log_file.write(f"Invalid email values in header '{header}':\n")
                     for idx in self.__df[bad_rows].index:
                         log_file.write(f"Row {idx}: {self.__df.loc[idx, header]}\n")
+                        
+        # Unique entries validation
+        for header in self.__rules['table']['unique_entries']:
+            header = header.strip().replace(' ', '_').lower()
+            
+            if header not in self.__df.columns:
+                log_file.write(f"Missing header: {header}\n")
+                continue
+            
+            duplicates = self.__df[header][self.__df[header].duplicated(keep=False)]
+            if not duplicates.empty:
+                log_file.write(f"Duplicate values in header '{header}':\n")
+                for idx in duplicates.index:
+                    log_file.write(f"Row {idx}: {self.__df.loc[idx, header]}\n")
                     
         log_file.close()
             
