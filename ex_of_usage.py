@@ -24,5 +24,6 @@ if __name__ == "__main__":
     
     Report(cleaner.pandas, 
            title="Cleaned CSV Report").generate(include_statistics=True, 
+                                                clean_data=True,
                                                 validation_log='examples/validation_log.txt', 
                                                 output_path='examples/report.txt')

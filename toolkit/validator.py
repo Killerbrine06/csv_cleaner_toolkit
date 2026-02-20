@@ -36,7 +36,7 @@ class CSV_Validator:
             if null_rows.any():
                 log_file.write(f"Null values found in header '{header}':\n")
                 for idx in self.__df[null_rows].index:
-                    log_file.write(f"Row {idx}\n")
+                    log_file.write(f"Index {idx}\n")
         
         numeric_validation_errors = False
         for header in self.__rules['table']['headers']:
@@ -55,7 +55,7 @@ class CSV_Validator:
                     numeric_validation_errors = True
                     log_file.write(f"Non-numeric values in header '{header}':\n")
                     for idx in self.__df[bad_rows].index:
-                        log_file.write(f"Row {idx}: {self.__df.loc[idx, header]}\n")
+                        log_file.write(f"Index {idx}: {self.__df.loc[idx, header]}\n")
                         
             # Datetime validation
             if self.__rules['table']['headers'][header] == 'datetime':
@@ -65,7 +65,7 @@ class CSV_Validator:
                 if bad_rows.any():
                     log_file.write(f"Invalid datetime values in header '{header}':\n")
                     for idx in self.__df[bad_rows].index:
-                        log_file.write(f"Row {idx}: {self.__df.loc[idx, header]}\n")
+                        log_file.write(f"Index {idx}: {self.__df.loc[idx, header]}\n")
                         
             # Email validation
             if self.__rules['table']['headers'][header] == 'email':
@@ -75,7 +75,7 @@ class CSV_Validator:
                 if bad_rows.any():
                     log_file.write(f"Invalid email values in header '{header}':\n")
                     for idx in self.__df[bad_rows].index:
-                        log_file.write(f"Row {idx}: {self.__df.loc[idx, header]}\n")
+                        log_file.write(f"Index {idx}: {self.__df.loc[idx, header]}\n")
                         
         # Unique entries validation
         for header in self.__rules['table']['unique_entries']:
@@ -89,7 +89,7 @@ class CSV_Validator:
             if not duplicates.empty:
                 log_file.write(f"Duplicate values in header '{header}':\n")
                 for idx in duplicates.index:
-                    log_file.write(f"Row {idx}: {self.__df.loc[idx, header]}\n")
+                    log_file.write(f"Index {idx}: {self.__df.loc[idx, header]}\n")
                     
         log_file.close()
         

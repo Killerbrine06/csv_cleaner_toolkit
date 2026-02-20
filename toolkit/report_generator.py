@@ -19,8 +19,11 @@ class Report:
                 
         return stats
 
-    def generate(self, include_statistics=True, validation_log:str=None, output_path:str=None):
+    def generate(self, include_statistics=True, clean_data=False, validation_log:str=None, output_path:str=None):
         rep = f"{self.title}\n\n"
+        if clean_data:
+            rep += "Report generated from cleaned CSV data.\n\n"
+        
         rep += f"Number of rows: {len(self.df)}\n"
         rep += f"Number of columns: {len(self.df.columns)}\n"
         rep += f"Column names: {', '.join(self.df.columns)}\n"
