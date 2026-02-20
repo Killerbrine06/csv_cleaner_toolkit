@@ -4,11 +4,10 @@ class NumericValidationError(Exception):
     pass
 
 class CSV_Validator:
-    def __init__(self, rules:dict, log_path:str, file_path:str=None, data=None):
+    def __init__(self, rules:dict, file_path:str=None, data=None):
         if not (file_path or type(data) == pd.DataFrame):
             raise ValueError("Either file_path or data must be provided.")
             
-        self.log_path = log_path
         if type(data) == pd.DataFrame:
             self.__df = data
             self.file_path = None
@@ -21,29 +20,26 @@ class CSV_Validator:
     def load_data(self):
         self.__df = pd.read_csv(self.file_path, skipinitialspace=True, skip_blank_lines=True)
 
-    def validate_data(self):
-        log_file = open(self.log_path, 'w')
+    def validate_data(self) -> dict:
+        log = {"missing_headers": [], "null_values": {}, "numeric_errors": {}, "datetime_errors": {}, "email_errors": {}, "duplicate_entries": {}}
         
         # Not Null validation
         for header, def_value in self.__rules['table']['not_null_entries']:
             header = header.strip().replace(' ', '_').lower()
             
             if header not in self.__df.columns:
-                log_file.write(f"Missing header: {header}\n")
+                log["missing_headers"].append(header)
                 continue
             
             null_rows = self.__df[header].isna()
             if null_rows.any():
-                log_file.write(f"Null values found in header '{header}':\n")
-                for idx in self.__df[null_rows].index:
-                    log_file.write(f"Index {idx}\n")
+                log["null_values"][header] = self.__df[null_rows].index.tolist()
         
-        numeric_validation_errors = False
         for header in self.__rules['table']['headers']:
             header = header.strip().replace(' ', '_').lower()
             
             if header not in self.__df.columns:
-                log_file.write(f"Missing header: {header}\n")
+                log['missing_headers'].append(header)
                 continue
             
             # Numeric validation
@@ -52,10 +48,7 @@ class CSV_Validator:
                 bad_rows = cols_to_num.isna() & self.__df[header].notna()
                 
                 if bad_rows.any():
-                    numeric_validation_errors = True
-                    log_file.write(f"Non-numeric values in header '{header}':\n")
-                    for idx in self.__df[bad_rows].index:
-                        log_file.write(f"Index {idx}: {self.__df.loc[idx, header]}\n")
+                    log["numeric_errors"][header] = self.__df[bad_rows].index.tolist()
                         
             # Datetime validation
             if self.__rules['table']['headers'][header] == 'datetime':
@@ -63,9 +56,7 @@ class CSV_Validator:
                 bad_rows = cols_to_date.isna() & self.__df[header].notna()
                 
                 if bad_rows.any():
-                    log_file.write(f"Invalid datetime values in header '{header}':\n")
-                    for idx in self.__df[bad_rows].index:
-                        log_file.write(f"Index {idx}: {self.__df.loc[idx, header]}\n")
+                    log["datetime_errors"][header] = self.__df[bad_rows].index.tolist()
                         
             # Email validation
             if self.__rules['table']['headers'][header] == 'email':
@@ -73,25 +64,18 @@ class CSV_Validator:
                 bad_rows = ~self.__df[header].str.match(email_pattern, na=False)
                 
                 if bad_rows.any():
-                    log_file.write(f"Invalid email values in header '{header}':\n")
-                    for idx in self.__df[bad_rows].index:
-                        log_file.write(f"Index {idx}: {self.__df.loc[idx, header]}\n")
+                    log["email_errors"][header] = self.__df[bad_rows].index.tolist()
                         
         # Unique entries validation
         for header in self.__rules['table']['unique_entries']:
             header = header.strip().replace(' ', '_').lower()
             
             if header not in self.__df.columns:
-                log_file.write(f"Missing header: {header}\n")
+                log['missing_headers'].append(header)
                 continue
             
             duplicates = self.__df[header][self.__df[header].duplicated(keep=False)]
             if not duplicates.empty:
-                log_file.write(f"Duplicate values in header '{header}':\n")
-                for idx in duplicates.index:
-                    log_file.write(f"Index {idx}: {self.__df.loc[idx, header]}\n")
-                    
-        log_file.close()
-        
-        if numeric_validation_errors:
-            raise NumericValidationError("Numeric validation errors found. See log for details.")
+                log["duplicate_entries"][header] = duplicates.index.tolist()
+    
+        return log    

@@ -16,14 +16,10 @@ if __name__ == "__main__":
     print(cleaner.data_to_string)
     cleaner.pandas.info()
     
-    validator = CSV_Validator(rules, 'examples/validation_log.txt', data=cleaner.pandas)
-    try:
-        validator.validate_data()
-    except NumericValidationError:
-        print("Numeric validation errors found. See log for details.")
+    validator = CSV_Validator(rules, data=cleaner.pandas)
+    log = validator.validate_data()
     
     Report(cleaner.pandas, 
            title="Cleaned CSV Report").generate(include_statistics=True, 
-                                                clean_data=True,
-                                                validation_log='examples/validation_log.txt', 
+                                                clean_data=True, validation_log=log,
                                                 output_path='examples/report.txt')

@@ -19,7 +19,7 @@ class Report:
                 
         return stats
 
-    def generate(self, include_statistics=True, clean_data=False, validation_log:str=None, output_path:str=None):
+    def generate(self, include_statistics=True, clean_data=False, validation_log:dict=None, output_path:str=None):
         rep = f"{self.title}\n\n"
         if clean_data:
             rep += "Report generated from cleaned CSV data.\n\n"
@@ -32,8 +32,32 @@ class Report:
             rep += self.gen_statistics()
         
         if validation_log:
-            with open(validation_log, 'r') as log_file:
-                rep += f"\nValidation Log:\n{log_file.read()}\n"
+            ALIAS = {
+                "missing_headers": "Missing Headers",
+                "null_values": "Null Values",
+                "numeric_errors": "Numeric Validation Errors",
+                "datetime_errors": "Datetime Validation Errors",
+                "email_errors": "Email Validation Errors",
+                "duplicate_entries": "Duplicate Entries"
+            }
+            
+            rep += f"\nValidation Log:\n"
+            for key, value in validation_log.items():
+                rep += f"\n{ALIAS[key]}:\n"
+                
+                if type(value) == list:
+                    for item in value:
+                        rep += f"  - {item}\n"
+                    else: 
+                        rep += f"  No issues found.\n"
+                        
+                elif type(value) == dict:
+                    for subkey, subvalue in value.items():
+                        rep += f"  {subkey}:\n"
+                        for idx in subvalue:
+                            rep += f"    - Index {idx}\n"
+                else:
+                    rep += f"  {value}\n"
         
         if output_path:
             with open(output_path, 'w') as f:
