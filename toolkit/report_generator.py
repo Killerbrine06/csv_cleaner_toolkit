@@ -20,6 +20,14 @@ class Report:
         return stats
 
     def generate(self, include_statistics=True, clean_data=False, validation_log:dict=None, output_path:str=None):
+        """Generates the report based on the CSV stored in self.df
+
+        Args:
+            include_statistics (bool, optional): Include statistics mean/median/std for every numeric column. Defaults to True.
+            clean_data (bool, optional): Used to specify in the report if the data has been cleaned. Defaults to False.
+            validation_log (dict, optional): Include the validation log. Defaults to None.
+            output_path (str, optional): Store the report at the specified path, otherwise prints to stdout. Defaults to None.
+        """
         rep = f"{self.title}\n\n"
         if clean_data:
             rep += "Report generated from cleaned CSV data.\n\n"
