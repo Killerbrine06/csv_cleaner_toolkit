@@ -33,7 +33,7 @@ def validate_paths(args: argparse.Namespace):
 
 def run_pipeline(rules_path:str, csv_path:str, output_path:str):
     with open(rules_path, 'r') as f:
-        rules = json.loads(f.read())
+        rules = json.load(f)
         
     cleaner = CSV_Cleaner(rules, csv_path)
     cleaner.load_data()
@@ -45,7 +45,7 @@ def run_pipeline(rules_path:str, csv_path:str, output_path:str):
     validator = CSV_Validator(rules, data=cleaner.pandas)
     log = validator.validate_data()
     
-    logging.info(Report.gen_validation_log(log))
+    logging.debug(Report.gen_validation_log(log))
 
 def setup_logging(verbose: int):
     if verbose == 0:
@@ -66,16 +66,15 @@ def main():
     
     try:
         validate_paths(args)
+        run_pipeline(args.rules_path, args.csv_path, args.output_path)
     except InvalidPathError as e:
         logging.critical(str(e))
         sys.exit(1)
-        
-    try:
-        run_pipeline()
     
     except Exception as e:
-        pass
-
+        logging.critical(f"An unexpected error occurred: {str(e)}")
+        sys.exit(1)
+        
 if __name__ == "__main__":         
     main()
 
