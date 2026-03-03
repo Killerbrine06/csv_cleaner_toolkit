@@ -19,6 +19,38 @@ class Report:
                 
         return stats
 
+    @staticmethod
+    def gen_validation_log(validation_log:dict):
+        rep = ""
+        ALIAS = {
+                "missing_headers": "Missing Headers",
+                "null_values": "Null Values",
+                "numeric_errors": "Numeric Validation Errors",
+                "datetime_errors": "Datetime Validation Errors",
+                "email_errors": "Email Validation Errors",
+                "duplicate_entries": "Duplicate Entries"
+            }
+            
+        rep += f"Validation Log:\n"
+        for key, value in validation_log.items():
+            rep += f"\n{ALIAS[key]}:\n"
+            
+            if type(value) == list:
+                for item in value:
+                    rep += f"  - {item}\n"
+                else: 
+                    rep += f"  No issues found.\n"
+                    
+            elif type(value) == dict:
+                for subkey, subvalue in value.items():
+                    rep += f"  {subkey}:\n"
+                    for idx in subvalue:
+                        rep += f"    - Index {idx}\n"
+            else:
+                rep += f"  {value}\n"
+                
+        return rep
+
     def generate(self, include_statistics=True, clean_data=False, validation_log:dict=None, output_path:str=None):
         """Generates the report based on the CSV stored in self.df
 
@@ -40,32 +72,8 @@ class Report:
             rep += self.gen_statistics()
         
         if validation_log:
-            ALIAS = {
-                "missing_headers": "Missing Headers",
-                "null_values": "Null Values",
-                "numeric_errors": "Numeric Validation Errors",
-                "datetime_errors": "Datetime Validation Errors",
-                "email_errors": "Email Validation Errors",
-                "duplicate_entries": "Duplicate Entries"
-            }
-            
-            rep += f"\nValidation Log:\n"
-            for key, value in validation_log.items():
-                rep += f"\n{ALIAS[key]}:\n"
-                
-                if type(value) == list:
-                    for item in value:
-                        rep += f"  - {item}\n"
-                    else: 
-                        rep += f"  No issues found.\n"
-                        
-                elif type(value) == dict:
-                    for subkey, subvalue in value.items():
-                        rep += f"  {subkey}:\n"
-                        for idx in subvalue:
-                            rep += f"    - Index {idx}\n"
-                else:
-                    rep += f"  {value}\n"
+            rep += '\n'
+            rep += self.gen_validation_log(validation_log)
         
         if output_path:
             with open(output_path, 'w') as f:
