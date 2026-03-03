@@ -1,6 +1,6 @@
 import pandas as pd
 
-class CSV_Validator:
+class CSVValidator:
     def __init__(self, rules:dict, file_path:str=None, data=None):
         if not (file_path or type(data) == pd.DataFrame):
             raise ValueError("Either file_path or data must be provided.")

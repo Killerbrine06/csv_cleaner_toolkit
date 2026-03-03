@@ -1,5 +1,5 @@
-from toolkit.cleaner import CSV_Cleaner
-from toolkit.validator import CSV_Validator
+from toolkit.cleaner import CSVCleaner
+from toolkit.validator import CSVValidator
 from toolkit.report_generator import Report
 import json
 
@@ -7,7 +7,7 @@ if __name__ == "__main__":
     with open('examples/rules_messy.json', 'r') as f:
         rules = json.loads(f.read())
         
-    cleaner = CSV_Cleaner(rules, 'examples/messy_csv_file.csv')
+    cleaner = CSVCleaner(rules, 'examples/messy_csv_file.csv')
     
     cleaner.load_data()
     cleaner.clean_data()
@@ -16,7 +16,7 @@ if __name__ == "__main__":
     print(cleaner.data_to_string)
     cleaner.pandas.info()
     
-    validator = CSV_Validator(rules, data=cleaner.pandas)
+    validator = CSVValidator(rules, data=cleaner.pandas)
     log = validator.validate_data()
     
     Report(cleaner.pandas, 

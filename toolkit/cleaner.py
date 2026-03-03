@@ -4,7 +4,7 @@ import logging
 import pandas as pd
 import country_converter as cc
 
-class CSV_Cleaner:
+class CSVCleaner:
     def __init__(self, rules:dict, file_path:str):
         self.file_path = file_path
         self.__df = None

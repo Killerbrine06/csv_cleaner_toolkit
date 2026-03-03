@@ -1,8 +1,7 @@
-from toolkit.cleaner import CSV_Cleaner
-from toolkit.validator import CSV_Validator
+from toolkit.cleaner import CSVCleaner
+from toolkit.validator import CSVValidator
 from toolkit.report_generator import Report
 import json, argparse, os, sys, logging
-import pandas as pd
 
 class InvalidPathError(Exception):
     pass
@@ -25,27 +24,51 @@ def validate_paths(args: argparse.Namespace):
     if not os.path.exists(args.rules_path):
         raise InvalidPathError(f"Error: Rules file '{args.rules_path}' does not exist.")
     
-    try:
-        with open(args.output_path, 'w') as f:
-            pass
-    except OSError as e:
-        raise InvalidPathError(f"Error: Output path '{args.output_path}' is not valid or writable. {str(e)}")
+    output_dir = os.path.dirname(args.output_path) or "."
+    if not os.path.isdir(output_dir):
+        raise InvalidPathError(f"Error: Output directory '{output_dir}' does not exist.")
+
+def summarise(log:dict):
+    total_nulls = sum(len(v) for v in log["null_values"].values())
+    total_numeric = sum(len(v) for v in log["numeric_errors"].values())
+    
+    logging.info(
+        "Validation summary: "
+        "%d missing headers | "
+        "%d null values across %d columns | "
+        "%d numeric errors | "
+        "%d invalid emails | "
+        "%d duplicate rows",
+        len(log["missing_headers"]),
+        total_nulls,
+        len(log["null_values"]),
+        total_numeric,
+        sum(len(v) for v in log["email_errors"].values()),
+        sum(len(v) for v in log["duplicate_entries"].values())
+    )
+    logging.debug(log)
+    # logging.debug(json.dumps(log, indent=2))
 
 def run_pipeline(rules_path:str, csv_path:str, output_path:str):
     with open(rules_path, 'r') as f:
         rules = json.load(f)
         
-    cleaner = CSV_Cleaner(rules, csv_path)
+    cleaner = CSVCleaner(rules, csv_path)
     cleaner.load_data()
     cleaner.clean_data()
 
     cleaner.log_debug_info()   
     cleaner.save_data(output_path)
     
-    validator = CSV_Validator(rules, data=cleaner.pandas)
-    log = validator.validate_data()
+    logging.info("Cleaned data loaded successfully.")
+    logging.info("Rows: %d | Columns: %d", cleaner.pandas.shape[0], cleaner.pandas.shape[1])
     
-    logging.debug(Report.gen_validation_log(log))
+    validator = CSVValidator(rules, data=cleaner.pandas)
+    log = validator.validate_data()
+    summarise(log)
+    
+    return log
+    
 
 def setup_logging(verbose: int):
     if verbose == 0:
@@ -66,15 +89,14 @@ def main():
     
     try:
         validate_paths(args)
-        run_pipeline(args.rules_path, args.csv_path, args.output_path)
+        log = run_pipeline(args.rules_path, args.csv_path, args.output_path)
     except InvalidPathError as e:
         logging.critical(str(e))
         sys.exit(1)
     
     except Exception as e:
-        logging.critical(f"An unexpected error occurred: {str(e)}")
+        logging.critical(f"An unexpected error occurred.", exc_info=True)
         sys.exit(1)
         
 if __name__ == "__main__":         
     main()
-
