@@ -1,5 +1,5 @@
 from toolkit.cleaner import CSV_Cleaner
-from toolkit.validator import CSV_Validator, NumericValidationError
+from toolkit.validator import CSV_Validator
 from toolkit.report_generator import Report
 import json
 

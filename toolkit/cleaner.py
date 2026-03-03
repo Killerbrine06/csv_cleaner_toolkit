@@ -30,11 +30,15 @@ class CSV_Cleaner:
         # Drop duplicaate rows
         df = df.drop_duplicates()
         
-        # Normalizing country names
+        # Normalizing country names and dates
         for header in self.__rules['table']['headers']:
             if self.__rules['table']['headers'][header] == 'country':
                 df[header] = df[header].apply(lambda x: cc.convert(names=x, to='ISO3', not_found=pd.NA) if pd.notna(x) else x)
 
+            elif self.__rules['table']['headers'][header] == 'datetime':
+                df[header] = pd.to_datetime(df[header], format="mixed", errors='coerce')
+                df[header] = df[header].dt.strftime('%d/%m/%Y')
+                        
         self.__df = df
     
     @property

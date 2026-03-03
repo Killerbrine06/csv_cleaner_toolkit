@@ -1,8 +1,5 @@
 import pandas as pd
 
-class NumericValidationError(Exception):
-    pass
-
 class CSV_Validator:
     def __init__(self, rules:dict, file_path:str=None, data=None):
         if not (file_path or type(data) == pd.DataFrame):
@@ -21,7 +18,7 @@ class CSV_Validator:
         self.__df = pd.read_csv(self.file_path, skipinitialspace=True, skip_blank_lines=True)
 
     def validate_data(self) -> dict:
-        log = {"missing_headers": [], "null_values": {}, "numeric_errors": {}, "datetime_errors": {}, "email_errors": {}, "duplicate_entries": {}}
+        log = {"missing_headers": [], "null_values": {}, "numeric_errors": {}, "email_errors": {}, "duplicate_entries": {}}
         
         # Not Null validation
         for header, def_value in self.__rules['table']['not_null_entries']:
@@ -49,15 +46,7 @@ class CSV_Validator:
                 
                 if bad_rows.any():
                     log["numeric_errors"][header] = self.__df[bad_rows].index.tolist()
-                        
-            # Datetime validation
-            if self.__rules['table']['headers'][header] == 'datetime':
-                cols_to_date = pd.to_datetime(self.__df[header], format="mixed", errors='coerce')
-                bad_rows = cols_to_date.isna() & self.__df[header].notna()
-                
-                if bad_rows.any():
-                    log["datetime_errors"][header] = self.__df[bad_rows].index.tolist()
-                        
+                                                
             # Email validation
             if self.__rules['table']['headers'][header] == 'email':
                 email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
