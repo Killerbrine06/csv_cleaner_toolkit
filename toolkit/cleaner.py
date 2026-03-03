@@ -1,3 +1,6 @@
+import io
+import logging
+
 import pandas as pd
 import country_converter as cc
 
@@ -41,10 +44,11 @@ class CSV_Cleaner:
                         
         self.__df = df
     
-    @property
-    def data_to_string(self):
-        return self.__df.to_string()
-    
+    def log_debug_info(self):
+        buffer = io.StringIO()
+        self.__df.info(buf=buffer)
+        logging.debug(buffer.getvalue())
+            
     @property
     def pandas(self):
         return self.__df
