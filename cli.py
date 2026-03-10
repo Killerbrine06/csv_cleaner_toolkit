@@ -24,9 +24,13 @@ def validate_paths(args: argparse.Namespace):
     if not os.path.exists(args.rules_path):
         raise InvalidPathError(f"Error: Rules file '{args.rules_path}' does not exist.")
     
-    output_dir = os.path.dirname(args.output_path) or "."
-    if not os.path.isdir(output_dir):
-        raise InvalidPathError(f"Error: Output directory '{output_dir}' does not exist.")
+    try:
+        output_dir = os.path.dirname(args.output_path) or "."
+        if not os.path.isdir(output_dir):
+            raise InvalidPathError(f"Error: Output directory '{output_dir}' does not exist.")
+    
+    except AttributeError:
+        pass
 
 def summarise(log:dict):
     total_nulls = sum(len(v) for v in log["null_values"].values())
@@ -49,7 +53,7 @@ def summarise(log:dict):
     logging.debug(log)
     # logging.debug(json.dumps(log, indent=2))
 
-def run_pipeline(rules_path:str, csv_path:str, output_path:str):
+def run_pipeline(rules_path:str, csv_path:str, output_path:str) -> dict:
     with open(rules_path, 'r') as f:
         rules = json.load(f)
         

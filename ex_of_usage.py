@@ -13,7 +13,6 @@ if __name__ == "__main__":
     cleaner.clean_data()
     cleaner.save_data('examples/cleaned_csv_file.csv')
     
-    print(cleaner.data_to_string)
     cleaner.pandas.info()
     
     validator = CSVValidator(rules, data=cleaner.pandas)
