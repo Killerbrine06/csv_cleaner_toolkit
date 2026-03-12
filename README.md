@@ -1,219 +1,272 @@
 # CSV Cleaner Toolkit
 
-A configurable command-line tool for cleaning, validating, and analyzing CSV files using rule-based definitions.
+A configurable command-line toolkit for **cleaning, validating, and analyzing CSV datasets**, with optional **AI-assisted explanations of data quality issues**.
 
-This project demonstrates structured data processing, validation logic design, CLI orchestration, and logging practices in Python.
-
----
-
-## Overview
-
-CSV Cleaner Toolkit is designed to process messy CSV files by:
-
-- Cleaning data according to defined rules
-- Enforcing schema validation
-- Detecting structural and data integrity issues
-- Producing validation summaries via CLI logging
-
-The tool is fully configurable through a JSON rules file, making it reusable across different datasets and use cases.
+The project demonstrates structured data processing pipelines, rule-driven validation, CLI tool design, and cost-efficient LLM integration.
 
 ---
 
-## Features
+# Overview
 
-- Rule-based CSV schema validation
-- Header type enforcement
-- Email validation
-- Numeric validation (int, float)
-- Datetime validation
-- Country validation
-- Duplicate entry detection
-- Not-null constraint enforcement
-- Configurable uniqueness constraints
-- Structured logging with verbosity levels
-- CLI-based execution
+Real-world CSV datasets often contain:
 
----
+* inconsistent column formatting
+* missing or invalid values
+* duplicate rows
+* incorrect data types
+* messy country/date formats
 
-## Tech Stack
+**CSV Cleaner Toolkit** provides a rule-based pipeline to automatically:
 
-- Python 3
-- pandas
-- argparse (CLI)
-- logging module
+1. Clean datasets
+2. Validate schema constraints
+3. Detect data quality issues
+4. Generate structured validation reports
+5. Optionally explain issues using an AI assistant
+
+The system is fully configurable through a **JSON rules file**, allowing it to adapt to different datasets without modifying the code.
 
 ---
 
-## Installation
+# Key Features
+
+### Data Cleaning
+
+* Column normalization
+* Whitespace removal
+* Empty value handling
+* Duplicate row removal
+* Country code normalization (ISO3)
+* Flexible datetime parsing
+
+### Rule-Based Validation
+
+Configurable validation rules allow enforcement of:
+
+* schema structure
+* column types
+* unique constraints
+* non-null requirements
+* email format validation
+* numeric validation
+
+### AI-Assisted Dataset Explanation
+
+An optional AI module can analyze dataset summaries and provide **human-readable explanations of potential data issues**.
+
+The AI integration:
+
+* only receives dataset metadata and small samples
+* avoids sending entire datasets
+* minimizes token usage and cost
+
+---
+
+# Example Workflow
+
+Input dataset:
+
+```
+messy_sales.csv
+```
+
+Pipeline:
+
+```
+CSV
+ ↓
+Cleaner
+ ↓
+Validator
+ ↓
+Report Generator
+ ↓
+(Optional) AI Explanation
+```
+
+Output:
+
+```
+cleaned_sales.csv
+validation_report.txt
+```
+
+Example validation summary:
+
+```
+Rows: 10 | Columns: 7
+
+Validation summary: 0 missing headers | 1 null values across 1 columns | 0 numeric errors | 1 invalid emails | 2 duplicate rows
+```
+
+Optional AI explanation:
+
+```
+The dataset contains duplicate rows and invalid email formats.
+Duplicate rows may inflate metrics such as revenue or customer counts.
+Invalid email values may indicate incomplete or corrupted customer records.
+```
+
+---
+
+# Installation
 
 Clone the repository:
 
-    git clone https://github.com/Killerbrine06/csv_cleaner_toolkit.git
-    cd csv_cleaner_toolkit
+```
+git clone https://github.com/Killerbrine06/csv_cleaner_toolkit.git
+cd csv_cleaner_toolkit
+```
 
 Install dependencies:
 
-    pip install -r requirements.txt
+```
+pip install -r requirements.txt
+```
 
 ---
 
-## Usage
+# Basic Usage
 
-Basic usage:
+Clean and validate a dataset:
 
-    python cli.py <csv_path> <rules_path> -o <output_path>
+```
+python cli.py <csv_path> <rules_path> -o <output_path>
+```
 
 Example:
 
-    python cli.py messy_sales.csv rules.json -o cleaned_sales.csv --verbose 2
+```
+python cli.py examples/messy_sales.csv rules.json -o cleaned_sales.csv --verbose 2
+```
 
 ---
 
-## CLI Arguments
+# AI Dataset Explanation
 
-| Argument | Description |
-|----------|------------|
-| `csv_path` | Path to the input CSV file |
-| `rules_path` | Path to the JSON rules file |
-| `-o / --output_path` | Path where the cleaned CSV will be saved |
-| `-r / --report` | (Optional) Generate report after validation |
-| `--verbose` | Verbosity level (0 = errors only, 1 = summary, 2 = detailed debug output) |
+To generate an explanation of detected dataset issues:
+
+```
+python ai_cli.py explain <csv_path> <rules_path>
+```
+
+The tool will:
+
+1. Run the cleaning and validation pipeline
+2. Generate a validation report
+3. Send a dataset summary and sample rows to the AI model
+4. Print a human-readable explanation
 
 ---
 
-## Rules File Format
+# Rules Configuration
 
-The toolkit uses a JSON configuration file to define validation and cleaning rules.
+The toolkit uses a JSON rules file to define dataset structure.
 
 Example:
 
-    {
-        "variables_format": {},
-        "table": {
-            "headers": {
-                "customer_name": "str",
-                "email": "email",
-                "order_id": "int",
-                "amount": "float",
-                "date": "datetime",
-                "country": "country",
-                "notes": "str"
-            },
-            "unique_entries": ["order_id"],
-            "not_null_entries": [
-                ["order_id", 0],
-                ["country", "ROU"]
-            ]
-        }
-    }
-
-### Explanation
-
-#### headers
-
-Defines expected columns and their types.
+```
+{
+  "table": {
+    "headers": {
+      "customer_name": "str",
+      "email": "email",
+      "order_id": "int",
+      "amount": "float",
+      "date": "datetime",
+      "country": "country"
+    },
+    "unique_entries": ["order_id"],
+    "not_null_entries": [
+      ["order_id", 0],
+      ["country", "ROU"]
+    ]
+  }
+}
+```
 
 Supported types:
 
-- str
-- int
-- float
-- email
-- datetime
-- country
-
-#### unique_entries
-
-Defines columns that must contain unique values.
-
-Example:
-
-    "unique_entries": ["order_id"]
-
-Ensures that `order_id` values are unique across the dataset.
-
-#### not_null_entries
-
-Defines columns that must not contain null values.
-
-Format:
-
-    ["column_name", default_value]
-
-If null values are found:
-- They may be replaced with the provided default value
-- Or flagged during validation (depending on implementation)
+* `str`
+* `int`
+* `float`
+* `email`
+* `datetime`
+* `country`
 
 ---
 
-## Validation Output
+# Project Architecture
 
-After processing, the tool logs a structured summary.
+```
+csv_cleaner_toolkit
+│
+├── cli.py
+├── ai_cli.py
+│
+├── toolkit/
+│   ├── cleaner.py
+│   ├── validator.py
+│   ├── report_generator.py
+│   └── openai_client.py
+│
+├── examples/
+└── requirements.txt
+```
 
-Example:
+### Core Components
 
-    INFO: Cleaned data loaded successfully.
-    INFO: Rows: 10 | Columns: 7
-    INFO: Validation summary:
-    0 missing headers |
-    1 null values across 1 columns |
-    0 numeric errors |
-    1 invalid emails |
-    2 duplicate rows
+**Cleaner**
 
-Detailed validation logs are shown when running with:
+Handles normalization and transformation of raw CSV data.
 
-    --verbose 2
+**Validator**
 
----
+Applies schema rules and detects data integrity issues.
 
-## Exit Behavior
+**Report Generator**
 
-- Returns exit code `0` when no critical validation issues are found.
-- Returns non-zero exit code when critical validation failures occur.
-- Logs unexpected runtime errors and exits safely.
+Produces structured summaries of validation results.
 
----
+**OpenAI Client**
 
-## Project Structure
-
-    csv_cleaner_toolkit/
-    ├── cli.py
-    ├── toolkit/
-    │   ├── cleaner.py
-    │   ├── validator.py
-    │   ├── report_generator.py
-    ├── examples/
-    ├── requirements.txt
-    └── README.md
+Handles communication with the language model for dataset explanations.
 
 ---
 
-## Project Status
+# Design Goals
 
-This project is maintained as a portfolio demonstration of:
+This project focuses on demonstrating:
 
-- CLI tool design
-- Data validation logic
-- Structured logging
-- Rule-driven data processing
+* modular Python architecture
+* rule-driven data pipelines
+* CLI tool design
+* structured logging
+* efficient LLM integration
 
-Future improvements may include:
-
-- Strict validation mode
-- Configurable severity levels
-- Packaging for pip installation
-- Enhanced reporting formats
+The AI component is **optional** and used only for interpretation, ensuring the core data processing pipeline remains deterministic and reliable.
 
 ---
 
-## Author
+# Future Improvements
 
-Vlad George Cacenschi  
-Python Backend & Automation Developer  
+Potential enhancements include:
+
+* strict validation mode
+* dataset profiling statistics
+* pip package distribution
+* richer reporting formats
+* interactive CLI commands
 
 ---
 
-## License
+# Author
+
+**Vlad George Cacenschi**
+Python Backend & Automation Developer
+
+---
+
+# License
 
 This project is intended for educational and portfolio purposes.
