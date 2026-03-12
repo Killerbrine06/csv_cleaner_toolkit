@@ -1,3 +1,5 @@
 */__pycache__/*
 *.txt
 !requirements.txt
+cache/
+api_key

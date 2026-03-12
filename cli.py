@@ -2,6 +2,7 @@ from toolkit.cleaner import CSVCleaner
 from toolkit.validator import CSVValidator
 from toolkit.report_generator import Report
 import json, argparse, os, sys, logging
+import pandas as pd
 
 class InvalidPathError(Exception):
     pass
@@ -53,7 +54,7 @@ def summarise(log:dict):
     logging.debug(log)
     # logging.debug(json.dumps(log, indent=2))
 
-def run_pipeline(rules_path:str, csv_path:str, output_path:str) -> dict:
+def run_pipeline(rules_path:str, csv_path:str, output_path:str) -> tuple[dict, 'pd.DataFrame']:
     with open(rules_path, 'r') as f:
         rules = json.load(f)
         
@@ -71,7 +72,7 @@ def run_pipeline(rules_path:str, csv_path:str, output_path:str) -> dict:
     log = validator.validate_data()
     summarise(log)
     
-    return log
+    return log, cleaner.pandas
     
 
 def setup_logging(verbose: int):
@@ -93,7 +94,7 @@ def main():
     
     try:
         validate_paths(args)
-        log = run_pipeline(args.rules_path, args.csv_path, args.output_path)
+        log, df = run_pipeline(args.rules_path, args.csv_path, args.output_path)
     except InvalidPathError as e:
         logging.critical(str(e))
         sys.exit(1)

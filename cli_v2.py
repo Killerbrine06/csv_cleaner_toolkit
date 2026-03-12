@@ -22,7 +22,7 @@ def main():
     
     try:
         validate_paths(args)
-        log = run_pipeline(args.rules_path, args.csv_path, args.csv_path)
+        log, df = run_pipeline(args.rules_path, args.csv_path, args.csv_path)
         
     except InvalidPathError as e:
         logging.critical(str(e))
@@ -32,12 +32,10 @@ def main():
         logging.critical(f"An unexpected error occurred.", exc_info=True)
         sys.exit(1)
     
-    Report(pd.read_csv(args.csv_path, 
-                       skipinitialspace=True, 
-                       skip_blank_lines=True)).generate(
-                            include_statistics=False,
-                            clean_data=True, validation_log=log,
-                            output_path=f"cache/report_{PureWindowsPath(args.csv_path).name}.txt")
+    Report(df).generate(
+        include_statistics=False,
+        clean_data=True, validation_log=log,
+        output_path=f"cache/report_{PureWindowsPath(args.csv_path).name}.txt")
                        
     if args.task == "explain":
         pass
