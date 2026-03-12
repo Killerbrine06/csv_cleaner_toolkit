@@ -2,7 +2,6 @@ from toolkit.report_generator import Report
 from cli import InvalidPathError, validate_paths, setup_logging, run_pipeline
 from pathlib import PureWindowsPath
 import argparse, sys, logging
-import pandas as pd
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Clean and validate a CSV file based on provided rules.')
