@@ -2,6 +2,7 @@ from toolkit.cleaner import CSVCleaner
 from toolkit.validator import CSVValidator
 from toolkit.report_generator import Report
 import json, argparse, os, sys, logging
+import pandas as pd
 
 class InvalidPathError(Exception):
     pass
@@ -24,9 +25,13 @@ def validate_paths(args: argparse.Namespace):
     if not os.path.exists(args.rules_path):
         raise InvalidPathError(f"Error: Rules file '{args.rules_path}' does not exist.")
     
-    output_dir = os.path.dirname(args.output_path) or "."
-    if not os.path.isdir(output_dir):
-        raise InvalidPathError(f"Error: Output directory '{output_dir}' does not exist.")
+    try:
+        output_dir = os.path.dirname(args.output_path) or "."
+        if not os.path.isdir(output_dir):
+            raise InvalidPathError(f"Error: Output directory '{output_dir}' does not exist.")
+    
+    except AttributeError:
+        pass
 
 def summarise(log:dict):
     total_nulls = sum(len(v) for v in log["null_values"].values())
@@ -49,7 +54,7 @@ def summarise(log:dict):
     logging.debug(log)
     # logging.debug(json.dumps(log, indent=2))
 
-def run_pipeline(rules_path:str, csv_path:str, output_path:str):
+def run_pipeline(rules_path:str, csv_path:str, output_path:str) -> tuple[dict, 'pd.DataFrame']:
     with open(rules_path, 'r') as f:
         rules = json.load(f)
         
@@ -67,7 +72,7 @@ def run_pipeline(rules_path:str, csv_path:str, output_path:str):
     log = validator.validate_data()
     summarise(log)
     
-    return log
+    return log, cleaner.pandas
     
 
 def setup_logging(verbose: int):
@@ -89,7 +94,7 @@ def main():
     
     try:
         validate_paths(args)
-        log = run_pipeline(args.rules_path, args.csv_path, args.output_path)
+        log, df = run_pipeline(args.rules_path, args.csv_path, args.output_path)
     except InvalidPathError as e:
         logging.critical(str(e))
         sys.exit(1)

@@ -31,21 +31,23 @@ class Report:
                 "duplicate_entries": "Duplicate Entries"
             }
             
-        rep += f"Validation Log:\n"
+        rep += f"Problems Detected:\n"
         for key, value in validation_log.items():
             rep += f"\n{ALIAS[key]}:\n"
             
             if type(value) == list:
                 for item in value:
                     rep += f"  - {item}\n"
-                else: 
-                    rep += f"  No issues found.\n"
+                
+                if not value: rep += f"  No issues found.\n"
                     
             elif type(value) == dict:
                 for subkey, subvalue in value.items():
                     rep += f"  {subkey}:\n"
                     for idx in subvalue:
                         rep += f"    - Index {idx}\n"
+                
+                if not value: rep += f"  No issues found.\n"
             else:
                 rep += f"  {value}\n"
                 
