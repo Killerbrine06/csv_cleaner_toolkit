@@ -3,3 +3,4 @@
 !requirements.txt
 cache/
 api_key
+__pycache__/
