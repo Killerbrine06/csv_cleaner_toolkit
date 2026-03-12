@@ -3,7 +3,7 @@ import openai
 class OpenAIClient:
     def __init__(self, api_key_path: str, model: str = "gpt-4o-mini",
                  temperature: float = 0.7, max_completion_tokens: int = 1000,
-                 system_prompt: str = "You are a helpful, honest assistant for cleaning and validating CSV files."):
+                 system_prompt: str = "You are a helpful, honest assistant for cleaning and validating CSV files. You are talking to a non-technical user."):
         self.api_key_path = api_key_path
         self.api_key = self._load_api_key()
         self.client = openai.OpenAI(api_key=self.api_key)

@@ -1,4 +1,5 @@
 from toolkit.report_generator import Report
+from toolkit.openai_client import OpenAIClient
 from cli import InvalidPathError, validate_paths, setup_logging, run_pipeline
 from pathlib import PureWindowsPath
 import argparse, sys, logging
@@ -31,13 +32,26 @@ def main():
         logging.critical(f"An unexpected error occurred.", exc_info=True)
         sys.exit(1)
     
+    logging.info(f"Cleaned file saved to: {args.csv_path}")
     Report(df).generate(
         include_statistics=False,
         clean_data=True, validation_log=log,
         output_path=f"cache/report_{PureWindowsPath(args.csv_path).name}.txt")
                        
+    logging.info(f"Report generated at: cache/report_{PureWindowsPath(args.csv_path).name}.txt")
+    
     if args.task == "explain":
-        pass
+        try:
+            client = OpenAIClient(api_key_path="api_key")
+            with open("cache/report_{PureWindowsPath(args.csv_path).name}.txt", "r") as f:
+                dataset_overview = f.read()
+                
+            dataset_overview += f'\nData sample:\n{df.sample(n=min(5, len(df))).to_csv(index=False)}'
+            explanation = client.explain_dataset(dataset_overview)
+            logging.info("Dataset Explanation:\n" + explanation)
+        except Exception as e:
+            logging.critical("Failed to explain the dataset.", exc_info=True)
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()
